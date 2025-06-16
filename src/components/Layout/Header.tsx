@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { LogOut, Users, UserPlus, Search, Settings, MessageSquare, BarChart3 } from 'lucide-react';
+import { LogOut, Users, UserPlus, Search, Settings, MessageSquare, BarChart3, Menu, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const { userProfile, logout } = useAuth();
   const { t, currentLanguage, setLanguage, languages } = useLanguage();
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -19,83 +20,83 @@ const Header: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const navigationItems = [
+    {
+      path: '/dashboard',
+      icon: BarChart3,
+      label: 'Dashboard',
+      color: 'text-blue-600'
+    },
+    {
+      path: '/matches',
+      icon: Search,
+      label: t('findMatches'),
+      color: 'text-green-600'
+    },
+    {
+      path: '/profile',
+      icon: UserPlus,
+      label: 'Profile',
+      color: 'text-purple-600'
+    },
+    {
+      path: '/testimonials',
+      icon: MessageSquare,
+      label: 'Testimonials',
+      color: 'text-orange-600'
+    }
+  ];
+
+  // Add admin item if user is admin
+  if (userProfile?.isAdmin) {
+    navigationItems.push({
+      path: '/admin',
+      icon: Settings,
+      label: t('adminDashboard'),
+      color: 'text-red-600'
+    });
+  }
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
               <Users className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">{t('appName')}</span>
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">{t('appName')}</span>
+              <span className="text-lg font-bold text-gray-900 sm:hidden">TTM</span>
             </Link>
           </div>
 
-          <nav className="hidden md:flex space-x-8">
-            <Link
-              to="/dashboard"
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/dashboard')
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
-            >
-              <BarChart3 className="h-4 w-4" />
-              <span>Dashboard</span>
-            </Link>
-
-            <Link
-              to="/matches"
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/matches')
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
-            >
-              <Search className="h-4 w-4" />
-              <span>{t('findMatches')}</span>
-            </Link>
-            
-            <Link
-              to="/profile"
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/profile')
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
-            >
-              <UserPlus className="h-4 w-4" />
-              <span>Profile</span>
-            </Link>
-
-            <Link
-              to="/testimonials"
-              className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/testimonials')
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
-            >
-              <MessageSquare className="h-4 w-4" />
-              <span>Testimonials</span>
-            </Link>
-
-            {userProfile?.isAdmin && (
-              <Link
-                to="/admin"
-                className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/admin')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                }`}
-              >
-                <Settings className="h-4 w-4" />
-                <span>{t('adminDashboard')}</span>
-              </Link>
-            )}
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-6">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(item.path)
+                      ? `bg-blue-50 ${item.color} shadow-sm`
+                      : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="flex items-center space-x-4">
-            <div className="relative">
+          <div className="flex items-center space-x-3">
+            {/* Language Selector */}
+            <div className="relative hidden sm:block">
               <select
                 value={currentLanguage.code}
                 onChange={(e) => {
@@ -112,88 +113,122 @@ const Header: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-700">
-                {userProfile?.fullName || userProfile?.email}
-              </span>
+            {/* User Info & Logout - Desktop */}
+            <div className="hidden md:flex items-center space-x-3">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">
+                  {userProfile?.fullName || userProfile?.email}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {userProfile?.currentSchool ? `${userProfile.currentSchool}` : 'Teacher'}
+                </p>
+              </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 transition-colors"
+                className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 transition-colors"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('logout')}</span>
+                <span>{t('logout')}</span>
               </button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-colors"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
-      <div className="md:hidden border-t border-gray-200">
-        <div className="px-2 pt-2 pb-3 space-y-1">
-          <Link
-            to="/dashboard"
-            className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
-              isActive('/dashboard')
-                ? 'bg-blue-100 text-blue-700'
-                : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-            }`}
-          >
-            <BarChart3 className="h-5 w-5" />
-            <span>Dashboard</span>
-          </Link>
+      {/* Mobile Navigation Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+          <div className="px-4 py-3 space-y-1">
+            {/* Navigation Items */}
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={closeMobileMenu}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
+                    isActive(item.path)
+                      ? `bg-blue-50 ${item.color} border-l-4 border-blue-500`
+                      : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{item.label}</span>
+                  {isActive(item.path) && (
+                    <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                  )}
+                </Link>
+              );
+            })}
 
-          <Link
-            to="/matches"
-            className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
-              isActive('/matches')
-                ? 'bg-blue-100 text-blue-700'
-                : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-            }`}
-          >
-            <Search className="h-5 w-5" />
-            <span>{t('findMatches')}</span>
-          </Link>
-          
-          <Link
-            to="/profile"
-            className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
-              isActive('/profile')
-                ? 'bg-blue-100 text-blue-700'
-                : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-            }`}
-          >
-            <UserPlus className="h-5 w-5" />
-            <span>Profile</span>
-          </Link>
+            {/* Divider */}
+            <div className="border-t border-gray-200 my-3"></div>
 
-          <Link
-            to="/testimonials"
-            className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
-              isActive('/testimonials')
-                ? 'bg-blue-100 text-blue-700'
-                : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-            }`}
-          >
-            <MessageSquare className="h-5 w-5" />
-            <span>Testimonials</span>
-          </Link>
+            {/* Language Selector - Mobile */}
+            <div className="px-4 py-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+              <select
+                value={currentLanguage.code}
+                onChange={(e) => {
+                  const lang = languages.find(l => l.code === e.target.value);
+                  if (lang) setLanguage(lang);
+                }}
+                className="w-full appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {languages.map(lang => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.flag} {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {userProfile?.isAdmin && (
-            <Link
-              to="/admin"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                isActive('/admin')
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-              }`}
+            {/* User Info - Mobile */}
+            <div className="px-4 py-3 bg-gray-50 rounded-lg mx-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-semibold text-sm">
+                    {userProfile?.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    {userProfile?.fullName || userProfile?.email}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {userProfile?.currentSchool || 'Teacher'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Logout Button - Mobile */}
+            <button
+              onClick={() => {
+                handleLogout();
+                closeMobileMenu();
+              }}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-colors mx-4"
             >
-              <Settings className="h-5 w-5" />
-              <span>{t('adminDashboard')}</span>
-            </Link>
-          )}
+              <LogOut className="h-5 w-5" />
+              <span>{t('logout')}</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 };
