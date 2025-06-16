@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -234,8 +235,8 @@ const TeacherDashboard: React.FC = () => {
           <span>Quick Actions</span>
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a
-            href="/matches"
+          <Link
+            to="/matches"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <ArrowRightLeft className="h-6 w-6 text-green-600" />
@@ -245,10 +246,10 @@ const TeacherDashboard: React.FC = () => {
                 {stats.mutualMatches} mutual matches available
               </p>
             </div>
-          </a>
+          </Link>
 
-          <a
-            href="/profile"
+          <Link
+            to="/profile"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <UserCheck className="h-6 w-6 text-blue-600" />
@@ -256,10 +257,10 @@ const TeacherDashboard: React.FC = () => {
               <p className="font-medium text-gray-900">Update Profile</p>
               <p className="text-sm text-gray-600">Keep your information current</p>
             </div>
-          </a>
+          </Link>
 
-          <a
-            href="/testimonials"
+          <Link
+            to="/testimonials"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Users className="h-6 w-6 text-purple-600" />
@@ -267,9 +268,10 @@ const TeacherDashboard: React.FC = () => {
               <p className="font-medium text-gray-900">View Testimonials</p>
               <p className="text-sm text-gray-600">See success stories</p>
             </div>
-          </a>
+          </Link>
         </div>
       </div>
+
 
       {/* Tips Section */}
       {stats.mutualMatches === 0 && !stats.loading && (
