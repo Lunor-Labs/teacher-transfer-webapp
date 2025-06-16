@@ -86,8 +86,9 @@ const MatchFinder: React.FC = () => {
           user.currentDistrict === filters.district || 
           user.desiredDistrict === filters.district;
 
-        return isMutualMatch && subjectMatch && provinceMatch && districtMatch;
+        return isMutualMatch || (subjectMatch && provinceMatch && districtMatch);
       });
+      console.log(mutualMatches)
 
       setMatches(mutualMatches);
     } catch (error) {
