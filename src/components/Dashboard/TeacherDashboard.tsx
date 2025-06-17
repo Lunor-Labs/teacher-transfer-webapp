@@ -213,17 +213,6 @@ const TeacherDashboard: React.FC = () => {
             <span>Transfer Preferences</span>
           </h3>
           <div className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Current Location:</p>
-              <p className="text-sm font-medium text-gray-900">
-                {userProfile.currentDistrict}, {userProfile.currentProvince}
-              </p>
-              <p className="text-xs text-gray-500 flex items-center space-x-1">
-                <MapIcon className="h-3 w-3" />
-                <span>{userProfile.currentZone} Zone</span>
-              </p>
-              <p className="text-xs text-gray-500 mt-1">{userProfile.currentSchool}</p>
-            </div>
             <div className="border-t pt-3">
               <p className="text-sm text-gray-600 mb-1">Desired Location:</p>
               <p className="text-sm font-medium text-gray-900">
