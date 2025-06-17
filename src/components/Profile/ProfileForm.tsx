@@ -8,7 +8,7 @@ import { zonalEducationData, getProvinces, getDistrictsByProvince, getZonesByDis
 import { Save, User as UserIcon } from 'lucide-react';
 
 const subjects = [
-  'Sinhala', 'Tamil', 'English', 'Mathematics', 'Science', 'Social Studies',
+  'Primary', 'Sinhala', 'Tamil', 'English', 'Mathematics', 'Science', 'Social Studies',
   'Buddhism', 'Christianity', 'Islam', 'Hinduism', 'History', 'Geography',
   'Civic Education', 'Health & Physical Education', 'Art', 'Music', 'Dance',
   'Technology', 'Commerce', 'Accounting', 'Economics', 'Biology', 'Physics',
