@@ -4,6 +4,7 @@ import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { User } from '../../types';
+import { zonalEducationData, getProvinces, getDistrictsByProvince, getZonesByDistrict } from '../../data/zones';
 import { Save, User as UserIcon } from 'lucide-react';
 
 const subjects = [
@@ -13,23 +14,6 @@ const subjects = [
   'Technology', 'Commerce', 'Accounting', 'Economics', 'Biology', 'Physics',
   'Chemistry', 'Combined Mathematics', 'ICT', 'Media Studies'
 ];
-
-const provinces = [
-  'Western', 'Central', 'Southern', 'Northern', 'Eastern', 'North Western',
-  'North Central', 'Uva', 'Sabaragamuwa'
-];
-
-const districtsByProvince: { [key: string]: string[] } = {
-  'Western': ['Colombo', 'Gampaha', 'Kalutara'],
-  'Central': ['Kandy', 'Matale', 'Nuwara Eliya'],
-  'Southern': ['Galle', 'Matara', 'Hambantota'],
-  'Northern': ['Jaffna', 'Kilinochchi', 'Mannar', 'Mullaitivu', 'Vavuniya'],
-  'Eastern': ['Ampara', 'Batticaloa', 'Trincomalee'],
-  'North Western': ['Kurunegala', 'Puttalam'],
-  'North Central': ['Anuradhapura', 'Polonnaruwa'],
-  'Uva': ['Badulla', 'Monaragala'],
-  'Sabaragamuwa': ['Ratnapura', 'Kegalle']
-};
 
 const grades = [
   'Primary (1-5)', 'Secondary (6-11)', 'Advanced Level (12-13)'
@@ -52,9 +36,11 @@ const ProfileForm: React.FC = () => {
     mediumOfInstruction: 'Sinhala' as 'Sinhala' | 'Tamil' | 'English',
     currentProvince: '',
     currentDistrict: '',
+    currentZone: '',
     currentSchool: '',
     desiredProvince: '',
     desiredDistrict: '',
+    desiredZone: '',
     gradeTaught: '',
     schoolType: 'National' as 'National' | 'Provincial',
     whatsappNumber: '',
@@ -69,9 +55,11 @@ const ProfileForm: React.FC = () => {
         mediumOfInstruction: userProfile.mediumOfInstruction || 'Sinhala',
         currentProvince: userProfile.currentProvince || '',
         currentDistrict: userProfile.currentDistrict || '',
+        currentZone: userProfile.currentZone || '',
         currentSchool: userProfile.currentSchool || '',
         desiredProvince: userProfile.desiredProvince || '',
         desiredDistrict: userProfile.desiredDistrict || '',
+        desiredZone: userProfile.desiredZone || '',
         gradeTaught: userProfile.gradeTaught || '',
         schoolType: userProfile.schoolType || 'National',
         whatsappNumber: userProfile.whatsappNumber || '',
@@ -122,22 +110,46 @@ const ProfileForm: React.FC = () => {
       }));
     }
 
-    // Reset district when province changes
-    if (name === 'currentProvince' || name === 'desiredProvince') {
-      const districtField = name === 'currentProvince' ? 'currentDistrict' : 'desiredDistrict';
+    // Reset dependent fields when parent changes
+    if (name === 'currentProvince') {
       setFormData(prev => ({
         ...prev,
-        [districtField]: ''
+        currentDistrict: '',
+        currentZone: ''
+      }));
+    } else if (name === 'currentDistrict') {
+      setFormData(prev => ({
+        ...prev,
+        currentZone: ''
+      }));
+    } else if (name === 'desiredProvince') {
+      setFormData(prev => ({
+        ...prev,
+        desiredDistrict: '',
+        desiredZone: ''
+      }));
+    } else if (name === 'desiredDistrict') {
+      setFormData(prev => ({
+        ...prev,
+        desiredZone: ''
       }));
     }
   };
 
   const getCurrentDistricts = () => {
-    return districtsByProvince[formData.currentProvince] || [];
+    return getDistrictsByProvince(formData.currentProvince);
+  };
+
+  const getCurrentZones = () => {
+    return getZonesByDistrict(formData.currentProvince, formData.currentDistrict);
   };
 
   const getDesiredDistricts = () => {
-    return districtsByProvince[formData.desiredProvince] || [];
+    return getDistrictsByProvince(formData.desiredProvince);
+  };
+
+  const getDesiredZones = () => {
+    return getZonesByDistrict(formData.desiredProvince, formData.desiredDistrict);
   };
 
   return (
@@ -227,7 +239,30 @@ const ProfileForm: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('currentProvince')}
+                School Type
+              </label>
+              <select
+                name="schoolType"
+                required
+                value={formData.schoolType}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="National">National School</option>
+                <option value="Provincial">Provincial School</option>
+              </select>
+            </div>
+
+            {/* Current Location Section */}
+            <div className="md:col-span-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+                Current Location
+              </h3>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Current Province
               </label>
               <select
                 name="currentProvince"
@@ -237,15 +272,15 @@ const ProfileForm: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select Province</option>
-                {provinces.map(province => (
-                  <option key={province} value={province}>{province}</option>
+                {getProvinces().map(province => (
+                  <option key={province} value={province}>{province} Province</option>
                 ))}
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('currentDistrict')}
+                Current District
               </label>
               <select
                 name="currentDistrict"
@@ -262,9 +297,28 @@ const ProfileForm: React.FC = () => {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('currentSchool')}
+                Current Zonal Education Division
+              </label>
+              <select
+                name="currentZone"
+                required
+                value={formData.currentZone}
+                onChange={handleChange}
+                disabled={!formData.currentDistrict}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+              >
+                <option value="">Select Zone</option>
+                {getCurrentZones().map(zone => (
+                  <option key={zone} value={zone}>{zone}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Current School
               </label>
               <input
                 type="text"
@@ -276,9 +330,16 @@ const ProfileForm: React.FC = () => {
               />
             </div>
 
+            {/* Desired Location Section */}
+            <div className="md:col-span-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2 mt-6">
+                Desired Location
+              </h3>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('desiredProvince')}
+                Desired Province
               </label>
               <select
                 name="desiredProvince"
@@ -288,15 +349,15 @@ const ProfileForm: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select Province</option>
-                {provinces.map(province => (
-                  <option key={province} value={province}>{province}</option>
+                {getProvinces().map(province => (
+                  <option key={province} value={province}>{province} Province</option>
                 ))}
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('desiredDistrict')}
+                Desired District
               </label>
               <select
                 name="desiredDistrict"
@@ -315,23 +376,33 @@ const ProfileForm: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('schoolType')}
+                Desired Zonal Education Division
               </label>
               <select
-                name="schoolType"
+                name="desiredZone"
                 required
-                value={formData.schoolType}
+                value={formData.desiredZone}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={!formData.desiredDistrict}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
               >
-                <option value="National">National School</option>
-                <option value="Provincial">Provincial School</option>
+                <option value="">Select Zone</option>
+                {getDesiredZones().map(zone => (
+                  <option key={zone} value={zone}>{zone}</option>
+                ))}
               </select>
+            </div>
+
+            {/* Contact Information Section */}
+            <div className="md:col-span-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2 mt-6">
+                Contact Information
+              </h3>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('whatsappNumber')}
+                WhatsApp Number
               </label>
               <input
                 type="tel"
@@ -354,7 +425,7 @@ const ProfileForm: React.FC = () => {
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">
-                  {t('hideContact')}
+                  Hide Contact Information (Other users won't see your WhatsApp number)
                 </span>
               </label>
             </div>
@@ -366,7 +437,7 @@ const ProfileForm: React.FC = () => {
             className="w-full flex items-center justify-center space-x-2 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Save className="h-4 w-4" />
-            <span>{loading ? 'Saving...' : (userProfile?.profileCompleted ? t('updateProfile') : t('createProfile'))}</span>
+            <span>{loading ? 'Saving...' : (userProfile?.profileCompleted ? 'Update Profile' : 'Create Profile')}</span>
           </button>
         </form>
       </div>

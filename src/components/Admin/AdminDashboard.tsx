@@ -17,7 +17,8 @@ import {
   Check,
   MessageSquare,
   CheckCircle,
-  XCircle
+  XCircle,
+  MapIcon
 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
@@ -316,9 +317,17 @@ const AdminDashboard: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {user.currentDistrict && user.currentProvince ? (
-                          <div className="flex items-center space-x-1">
-                            <MapPin className="h-3 w-3" />
-                            <span>{user.currentDistrict}, {user.currentProvince}</span>
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-1">
+                              <MapPin className="h-3 w-3" />
+                              <span>{user.currentDistrict}, {user.currentProvince}</span>
+                            </div>
+                            {user.currentZone && (
+                              <div className="flex items-center space-x-1 text-xs text-gray-500">
+                                <MapIcon className="h-3 w-3" />
+                                <span>{user.currentZone} Zone</span>
+                              </div>
+                            )}
                           </div>
                         ) : (
                           'Not specified'
@@ -386,6 +395,12 @@ const AdminDashboard: React.FC = () => {
                       
                       <div className="text-sm text-gray-600">
                         <p>{testimonial.userSchool}, {testimonial.userDistrict}</p>
+                        {testimonial.userZone && (
+                          <p className="flex items-center space-x-1 text-xs">
+                            <MapIcon className="h-3 w-3" />
+                            <span>{testimonial.userZone} Zone</span>
+                          </p>
+                        )}
                         <p>Submitted: {testimonial.createdAt.toLocaleDateString()}</p>
                         {testimonial.approvedAt && (
                           <p>Approved: {testimonial.approvedAt.toLocaleDateString()}</p>
@@ -471,19 +486,39 @@ const AdminDashboard: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Current Location</label>
-                    <p className="mt-1 text-sm text-gray-900">
-                      {selectedUser.currentDistrict && selectedUser.currentProvince
-                        ? `${selectedUser.currentDistrict}, ${selectedUser.currentProvince}`
-                        : 'N/A'}
-                    </p>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {selectedUser.currentDistrict && selectedUser.currentProvince ? (
+                        <div>
+                          <p>{selectedUser.currentDistrict}, {selectedUser.currentProvince}</p>
+                          {selectedUser.currentZone && (
+                            <p className="text-xs text-gray-500 flex items-center space-x-1">
+                              <MapIcon className="h-3 w-3" />
+                              <span>{selectedUser.currentZone} Zone</span>
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        'N/A'
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Desired Location</label>
-                    <p className="mt-1 text-sm text-gray-900">
-                      {selectedUser.desiredDistrict && selectedUser.desiredProvince
-                        ? `${selectedUser.desiredDistrict}, ${selectedUser.desiredProvince}`
-                        : 'N/A'}
-                    </p>
+                    <div className="mt-1 text-sm text-gray-900">
+                      {selectedUser.desiredDistrict && selectedUser.desiredProvince ? (
+                        <div>
+                          <p>{selectedUser.desiredDistrict}, {selectedUser.desiredProvince}</p>
+                          {selectedUser.desiredZone && (
+                            <p className="text-xs text-gray-500 flex items-center space-x-1">
+                              <MapIcon className="h-3 w-3" />
+                              <span>{selectedUser.desiredZone} Zone</span>
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        'N/A'
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Current School</label>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from "react-router-dom";
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,7 +12,8 @@ import {
   BookOpen,
   BarChart3,
   ArrowRightLeft,
-  AlertCircle
+  AlertCircle,
+  MapIcon
 } from 'lucide-react';
 
 const TeacherDashboard: React.FC = () => {
@@ -23,7 +23,7 @@ const TeacherDashboard: React.FC = () => {
     totalTeachers: 0,
     mutualMatches: 0,
     sameSubject: 0,
-    sameProvince: 0,
+    sameZone: 0,
     loading: true
   });
 
@@ -58,12 +58,14 @@ const TeacherDashboard: React.FC = () => {
         }
       });
 
-      // Calculate mutual matches
+      // Calculate perfect mutual matches (including zone)
       const mutualMatches = allUsers.filter(user => 
         user.currentProvince === userProfile.desiredProvince &&
         user.currentDistrict === userProfile.desiredDistrict &&
+        user.currentZone === userProfile.desiredZone &&
         user.desiredProvince === userProfile.currentProvince &&
-        user.desiredDistrict === userProfile.currentDistrict
+        user.desiredDistrict === userProfile.currentDistrict &&
+        user.desiredZone === userProfile.currentZone
       );
 
       // Calculate same subject teachers
@@ -71,19 +73,19 @@ const TeacherDashboard: React.FC = () => {
         user.subject === userProfile.subject
       );
 
-      // Calculate teachers in same province (current or desired)
-      const sameProvince = allUsers.filter(user => 
-        user.currentProvince === userProfile.currentProvince ||
-        user.currentProvince === userProfile.desiredProvince ||
-        user.desiredProvince === userProfile.currentProvince ||
-        user.desiredProvince === userProfile.desiredProvince
+      // Calculate teachers in same zone (current or desired)
+      const sameZone = allUsers.filter(user => 
+        user.currentZone === userProfile.currentZone ||
+        user.currentZone === userProfile.desiredZone ||
+        user.desiredZone === userProfile.currentZone ||
+        user.desiredZone === userProfile.desiredZone
       );
 
       setStats({
         totalTeachers: allUsers.length + 1, // +1 for current user
         mutualMatches: mutualMatches.length,
         sameSubject: sameSubject.length,
-        sameProvince: sameProvince.length,
+        sameZone: sameZone.length,
         loading: false
       });
     } catch (error) {
@@ -141,11 +143,11 @@ const TeacherDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Mutual Matches</p>
+              <p className="text-sm font-medium text-gray-600">Perfect Matches</p>
               <p className="text-2xl font-bold text-green-600">
                 {stats.loading ? '...' : stats.mutualMatches}
               </p>
-              <p className="text-xs text-gray-500 mt-1">Perfect transfer partners</p>
+              <p className="text-xs text-gray-500 mt-1">Exact zone matches</p>
             </div>
             <ArrowRightLeft className="h-8 w-8 text-green-600" />
           </div>
@@ -167,13 +169,13 @@ const TeacherDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Same Region</p>
+              <p className="text-sm font-medium text-gray-600">Same Zone</p>
               <p className="text-2xl font-bold text-orange-600">
-                {stats.loading ? '...' : stats.sameProvince}
+                {stats.loading ? '...' : stats.sameZone}
               </p>
-              <p className="text-xs text-gray-500 mt-1">In your provinces</p>
+              <p className="text-xs text-gray-500 mt-1">In your zones</p>
             </div>
-            <MapPin className="h-8 w-8 text-orange-600" />
+            <MapIcon className="h-8 w-8 text-orange-600" />
           </div>
         </div>
       </div>
@@ -216,12 +218,20 @@ const TeacherDashboard: React.FC = () => {
               <p className="text-sm font-medium text-gray-900">
                 {userProfile.currentDistrict}, {userProfile.currentProvince}
               </p>
-              <p className="text-xs text-gray-500">{userProfile.currentSchool}</p>
+              <p className="text-xs text-gray-500 flex items-center space-x-1">
+                <MapIcon className="h-3 w-3" />
+                <span>{userProfile.currentZone} Zone</span>
+              </p>
+              <p className="text-xs text-gray-500 mt-1">{userProfile.currentSchool}</p>
             </div>
             <div className="border-t pt-3">
               <p className="text-sm text-gray-600 mb-1">Desired Location:</p>
               <p className="text-sm font-medium text-gray-900">
                 {userProfile.desiredDistrict}, {userProfile.desiredProvince}
+              </p>
+              <p className="text-xs text-gray-500 flex items-center space-x-1">
+                <MapIcon className="h-3 w-3" />
+                <span>{userProfile.desiredZone} Zone</span>
               </p>
             </div>
           </div>
@@ -235,21 +245,21 @@ const TeacherDashboard: React.FC = () => {
           <span>Quick Actions</span>
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            to="/matches"
+          <a
+            href="/matches"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <ArrowRightLeft className="h-6 w-6 text-green-600" />
             <div>
-              <p className="font-medium text-gray-900">Find Matches</p>
+              <p className="font-medium text-gray-900">Find Perfect Matches</p>
               <p className="text-sm text-gray-600">
-                {stats.mutualMatches} mutual matches available
+                {stats.mutualMatches} exact zone matches available
               </p>
             </div>
-          </Link>
+          </a>
 
-          <Link
-            to="/profile"
+          <a
+            href="/profile"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <UserCheck className="h-6 w-6 text-blue-600" />
@@ -257,10 +267,10 @@ const TeacherDashboard: React.FC = () => {
               <p className="font-medium text-gray-900">Update Profile</p>
               <p className="text-sm text-gray-600">Keep your information current</p>
             </div>
-          </Link>
+          </a>
 
-          <Link
-            to="/testimonials"
+          <a
+            href="/testimonials"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Users className="h-6 w-6 text-purple-600" />
@@ -268,10 +278,9 @@ const TeacherDashboard: React.FC = () => {
               <p className="font-medium text-gray-900">View Testimonials</p>
               <p className="text-sm text-gray-600">See success stories</p>
             </div>
-          </Link>
+          </a>
         </div>
       </div>
-
 
       {/* Tips Section */}
       {stats.mutualMatches === 0 && !stats.loading && (
@@ -279,10 +288,17 @@ const TeacherDashboard: React.FC = () => {
           <div className="flex items-start space-x-3">
             <AlertCircle className="h-6 w-6 text-yellow-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-medium text-yellow-800 mb-2">No Mutual Matches Found</h4>
+              <h4 className="font-medium text-yellow-800 mb-2">No Perfect Matches Found</h4>
               <p className="text-sm text-yellow-700 mb-3">
-                Currently, there are no teachers whose current location matches your desired location and vice versa. Here are some tips:
+                Currently, there are no teachers whose current location (including zonal division) exactly matches your desired location and vice versa.
               </p>
+              <div className="bg-yellow-100 rounded-lg p-3 mb-3">
+                <p className="text-sm text-yellow-800">
+                  <strong>Your Profile:</strong><br />
+                  Current: {userProfile.currentZone}, {userProfile.currentDistrict}, {userProfile.currentProvince}<br />
+                  Desired: {userProfile.desiredZone}, {userProfile.desiredDistrict}, {userProfile.desiredProvince}
+                </p>
+              </div>
               <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
                 <li>Check back regularly as new teachers join the platform</li>
                 <li>Consider expanding your desired location preferences</li>

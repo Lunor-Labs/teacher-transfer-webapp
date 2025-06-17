@@ -3,7 +3,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { MessageSquare, Send } from 'lucide-react';
+import { MessageSquare, Send, MapIcon } from 'lucide-react';
 
 const TestimonialForm: React.FC = () => {
   const { userProfile } = useAuth();
@@ -33,6 +33,7 @@ const TestimonialForm: React.FC = () => {
         userInitials,
         userSchool: userProfile.currentSchool,
         userDistrict: userProfile.currentDistrict,
+        userZone: userProfile.currentZone,
         message: message.trim(),
         isApproved: false,
         createdAt: new Date()
@@ -118,8 +119,14 @@ const TestimonialForm: React.FC = () => {
               <p><strong>Name:</strong> {userProfile.fullName}</p>
               <p><strong>School:</strong> {userProfile.currentSchool}</p>
               <p><strong>District:</strong> {userProfile.currentDistrict}</p>
+              {userProfile.currentZone && (
+                <p className="flex items-center space-x-1">
+                  <MapIcon className="h-3 w-3" />
+                  <span><strong>Zone:</strong> {userProfile.currentZone}</span>
+                </p>
+              )}
               <p className="text-xs text-gray-500 mt-2">
-                Your testimonial will be displayed with your initials and school/district information.
+                Your testimonial will be displayed with your initials and school/district/zone information.
               </p>
             </div>
           </div>

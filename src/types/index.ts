@@ -8,9 +8,11 @@ export interface User {
   mediumOfInstruction: 'Sinhala' | 'Tamil' | 'English';
   currentProvince: string;
   currentDistrict: string;
+  currentZone: string;
   currentSchool: string;
   desiredProvince: string;
   desiredDistrict: string;
+  desiredZone: string;
   gradeTaught: string;
   schoolType: 'National' | 'Provincial';
   whatsappNumber: string;
@@ -34,6 +36,7 @@ export interface Testimonial {
   userInitials: string;
   userSchool: string;
   userDistrict: string;
+  userZone: string;
   message: string;
   isApproved: boolean;
   createdAt: Date;

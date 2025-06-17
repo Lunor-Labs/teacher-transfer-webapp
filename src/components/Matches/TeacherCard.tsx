@@ -11,7 +11,8 @@ import {
   ArrowRightLeft,
   Eye,
   EyeOff,
-  Globe
+  Globe,
+  MapIcon
 } from 'lucide-react';
 
 interface TeacherCardProps {
@@ -46,7 +47,7 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher }) => {
         </div>
         <div className="flex items-center space-x-1 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
           <ArrowRightLeft className="h-3 w-3" />
-          <span>Mutual Match</span>
+          <span>Perfect Match</span>
         </div>
       </div>
 
@@ -65,12 +66,18 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher }) => {
           <div className="text-sm text-gray-600 mb-2">
             <strong>Current Location:</strong>
           </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-700">
-            <MapPin className="h-4 w-4 text-blue-600" />
-            <span>{teacher.currentDistrict}, {teacher.currentProvince}</span>
-          </div>
-          <div className="text-xs text-gray-500 mt-1">
-            {teacher.currentSchool}
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2 text-sm text-gray-700">
+              <MapPin className="h-4 w-4 text-blue-600" />
+              <span>{teacher.currentDistrict}, {teacher.currentProvince}</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 ml-6">
+              <MapIcon className="h-3 w-3" />
+              <span>{teacher.currentZone} Zone</span>
+            </div>
+            <div className="text-xs text-gray-500 ml-6">
+              {teacher.currentSchool}
+            </div>
           </div>
         </div>
 
@@ -78,9 +85,15 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher }) => {
           <div className="text-sm text-gray-600 mb-2">
             <strong>Desired Location:</strong>
           </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-700">
-            <MapPin className="h-4 w-4 text-green-600" />
-            <span>{teacher.desiredDistrict}, {teacher.desiredProvince}</span>
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2 text-sm text-gray-700">
+              <MapPin className="h-4 w-4 text-green-600" />
+              <span>{teacher.desiredDistrict}, {teacher.desiredProvince}</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 ml-6">
+              <MapIcon className="h-3 w-3" />
+              <span>{teacher.desiredZone} Zone</span>
+            </div>
           </div>
         </div>
       </div>
@@ -97,7 +110,7 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher }) => {
             className="w-full flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors duration-200"
           >
             <MessageCircle className="h-4 w-4" />
-            <span>{t('contactViaWhatsApp')}</span>
+            <span>Contact via WhatsApp</span>
           </button>
         )}
       </div>
