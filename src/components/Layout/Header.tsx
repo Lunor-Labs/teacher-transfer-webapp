@@ -69,7 +69,7 @@ const Header: React.FC = () => {
             <Link to="/" className="flex items-center space-x-2">
               <Users className="h-8 w-8 text-blue-600" />
               <span className="text-xl font-bold text-gray-900 hidden sm:block">{t('appName')}</span>
-              <span className="text-lg font-bold text-gray-900 sm:hidden">TTM</span>
+              <span className="text-lg font-bold text-gray-900 sm:hidden">Guru Mithuru</span>
             </Link>
           </div>
 
