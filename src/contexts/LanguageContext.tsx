@@ -15,7 +15,7 @@ interface Translations {
 
 const translations: Translations = {
   en: {
-    appName: 'Teacher Transfer Match',
+    appName: 'Guru Mithuru',
     login: 'Login',
     register: 'Register',
     email: 'Email',
@@ -42,7 +42,7 @@ const translations: Translations = {
     mutualMatch: 'Mutual Match Available'
   },
   si: {
-    appName: 'ගුරු මාරු ගැලපීම',
+    appName: 'ගුරු මිතුරු',
     login: 'පිවිසෙන්න',
     register: 'ලියාපදිංචි වන්න',
     email: 'විද්‍යුත් තැපැල්',
