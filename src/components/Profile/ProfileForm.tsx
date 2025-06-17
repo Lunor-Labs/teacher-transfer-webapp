@@ -158,7 +158,7 @@ const ProfileForm: React.FC = () => {
         <div className="flex items-center space-x-3 mb-6">
           <UserIcon className="h-8 w-8 text-blue-600" />
           <h1 className="text-2xl font-bold text-gray-900">
-            {userProfile?.profileCompleted ? t('updateProfile') : t('createProfile')}
+            {userProfile?.profileCompleted ? 'Update Teaching Information' : 'Setup Your Teaching Information'}
           </h1>
         </div>
 

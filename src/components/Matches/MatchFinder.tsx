@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -21,7 +21,7 @@ const MatchFinder: React.FC = () => {
   });
 
   const subjects = [
-    'Sinhala', 'Tamil', 'English', 'Mathematics', 'Science', 'Social Studies',
+    'Primary', 'Sinhala', 'Tamil', 'English', 'Mathematics', 'Science', 'Social Studies',
     'Buddhism', 'Christianity', 'Islam', 'Hinduism', 'History', 'Geography',
     'Civic Education', 'Health & Physical Education', 'Art', 'Music', 'Dance',
     'Technology', 'Commerce', 'Accounting', 'Economics', 'Biology', 'Physics',
@@ -127,13 +127,19 @@ const MatchFinder: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <AlertCircle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+          <AlertCircle className="h-16 w-16 text-blue-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Complete Your Profile First
+            Click here to setup your teaching information
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             Please complete your teacher profile to find matching transfer partners.
           </p>
+          <a
+            href="/profile"
+            className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <span>Setup Profile</span>
+          </a>
         </div>
       </div>
     );
@@ -260,13 +266,6 @@ const MatchFinder: React.FC = () => {
             <p className="text-gray-600 mb-4">
               No teachers found whose current location (province, district, and zone) exactly matches your desired location and vice versa.
             </p>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-md mx-auto">
-              <p className="text-sm text-yellow-800">
-                <strong>Your Profile:</strong><br />
-                Current: {userProfile.currentZone}, {userProfile.currentDistrict}, {userProfile.currentProvince}<br />
-                Desired: {userProfile.desiredZone}, {userProfile.desiredDistrict}, {userProfile.desiredProvince}
-              </p>
-            </div>
             <p className="text-sm text-gray-500 mt-4">
               Try adjusting your filters or check back later for new matches.
             </p>
