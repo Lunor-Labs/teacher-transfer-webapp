@@ -54,11 +54,14 @@ const AdminDashboard: React.FC = () => {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        usersData.push({
-          ...data,
-          uid: doc.id,
-          createdAt: data.createdAt?.toDate() || new Date()
-        } as User);
+        // Exclude admin users from the list
+        if (!data.isAdmin) {
+          usersData.push({
+            ...data,
+            uid: doc.id,
+            createdAt: data.createdAt?.toDate() || new Date()
+          } as User);
+        }
       });
 
       setUsers(usersData.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
@@ -168,8 +171,8 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="flex items-center space-x-3 mb-8">
-        <Settings className="h-8 w-8 text-blue-600" />
-        <h1 className="text-3xl font-bold text-gray-900">{t('adminDashboard')}</h1>
+        <Settings className="h-8 w-8 text-red-600" />
+        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
       </div>
 
       {/* Stats Cards */}
@@ -177,7 +180,7 @@ const AdminDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Users</p>
+              <p className="text-sm font-medium text-gray-600">Total Teachers</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
             </div>
             <Users className="h-8 w-8 text-blue-600" />
@@ -235,17 +238,17 @@ const AdminDashboard: React.FC = () => {
               onClick={() => setActiveTab('users')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'users'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-red-500 text-red-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Users ({stats.totalUsers})
+              Teachers ({stats.totalUsers})
             </button>
             <button
               onClick={() => setActiveTab('testimonials')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'testimonials'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-red-500 text-red-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -256,7 +259,7 @@ const AdminDashboard: React.FC = () => {
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
             <span className="ml-2 text-gray-600">Loading...</span>
           </div>
         ) : activeTab === 'users' ? (
@@ -265,13 +268,16 @@ const AdminDashboard: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
+                    Teacher
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Subject
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Location
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Preferred Zones
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
@@ -329,6 +335,38 @@ const AdminDashboard: React.FC = () => {
                               </div>
                             )}
                           </div>
+                        ) : (
+                          'Not specified'
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900">
+                        {user.desiredZones && user.desiredZones.length > 0 ? (
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-600 font-medium">
+                              {user.desiredZones.length} zone{user.desiredZones.length > 1 ? 's' : ''}
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {user.desiredZones.slice(0, 2).map((zone, index) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
+                                >
+                                  {zone}
+                                </span>
+                              ))}
+                              {user.desiredZones.length > 2 && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                  +{user.desiredZones.length - 2} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ) : user.desiredZone ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            {user.desiredZone}
+                          </span>
                         ) : (
                           'Not specified'
                         )}
@@ -447,7 +485,7 @@ const AdminDashboard: React.FC = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">User Details</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Teacher Details</h3>
                 <button
                   onClick={() => setSelectedUser(null)}
                   className="text-gray-400 hover:text-gray-600"
@@ -503,17 +541,30 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Desired Location</label>
+                    <label className="block text-sm font-medium text-gray-700">Preferred Zones</label>
                     <div className="mt-1 text-sm text-gray-900">
-                      {selectedUser.desiredDistrict && selectedUser.desiredProvince ? (
+                      {selectedUser.desiredZones && selectedUser.desiredZones.length > 0 ? (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-600">
+                            {selectedUser.desiredProvince} Province, {selectedUser.desiredDistrict} District
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {selectedUser.desiredZones.map((zone, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
+                              >
+                                {zone}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : selectedUser.desiredZone ? (
                         <div>
                           <p>{selectedUser.desiredDistrict}, {selectedUser.desiredProvince}</p>
-                          {selectedUser.desiredZone && (
-                            <p className="text-xs text-gray-500 flex items-center space-x-1">
-                              <MapIcon className="h-3 w-3" />
-                              <span>{selectedUser.desiredZone} Zone</span>
-                            </p>
-                          )}
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            {selectedUser.desiredZone}
+                          </span>
                         </div>
                       ) : (
                         'N/A'
@@ -553,7 +604,7 @@ const AdminDashboard: React.FC = () => {
             </div>
             
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this user? This action cannot be undone.
+              Are you sure you want to delete this teacher? This action cannot be undone.
             </p>
             
             <div className="flex space-x-3">

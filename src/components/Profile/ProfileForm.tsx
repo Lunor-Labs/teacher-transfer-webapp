@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { User } from '../../types';
 import { zonalEducationData, getProvinces, getDistrictsByProvince, getZonesByDistrict } from '../../data/zones';
-import { Save, User as UserIcon } from 'lucide-react';
+import { Save, User as UserIcon, Plus, X } from 'lucide-react';
 
 const subjects = [
   'Primary', 'Sinhala', 'Tamil', 'English', 'Mathematics', 'Science', 'Social Studies',
@@ -41,6 +41,7 @@ const ProfileForm: React.FC = () => {
     desiredProvince: '',
     desiredDistrict: '',
     desiredZone: '',
+    desiredZones: [] as string[],
     gradeTaught: '',
     schoolType: 'National' as 'National' | 'Provincial',
     whatsappNumber: '',
@@ -60,6 +61,7 @@ const ProfileForm: React.FC = () => {
         desiredProvince: userProfile.desiredProvince || '',
         desiredDistrict: userProfile.desiredDistrict || '',
         desiredZone: userProfile.desiredZone || '',
+        desiredZones: userProfile.desiredZones || [userProfile.desiredZone].filter(Boolean),
         gradeTaught: userProfile.gradeTaught || '',
         schoolType: userProfile.schoolType || 'National',
         whatsappNumber: userProfile.whatsappNumber || '',
@@ -78,6 +80,10 @@ const ProfileForm: React.FC = () => {
     try {
       const profileData = {
         ...formData,
+        // Ensure desiredZone is included in desiredZones array
+        desiredZones: formData.desiredZones.includes(formData.desiredZone) 
+          ? formData.desiredZones 
+          : [...formData.desiredZones, formData.desiredZone].filter(Boolean),
         email: currentUser.email,
         phoneNumber: currentUser.phoneNumber,
         uid: currentUser.uid,
@@ -126,14 +132,32 @@ const ProfileForm: React.FC = () => {
       setFormData(prev => ({
         ...prev,
         desiredDistrict: '',
-        desiredZone: ''
+        desiredZone: '',
+        desiredZones: []
       }));
     } else if (name === 'desiredDistrict') {
       setFormData(prev => ({
         ...prev,
-        desiredZone: ''
+        desiredZone: '',
+        desiredZones: []
       }));
     }
+  };
+
+  const addDesiredZone = () => {
+    if (formData.desiredZone && !formData.desiredZones.includes(formData.desiredZone)) {
+      setFormData(prev => ({
+        ...prev,
+        desiredZones: [...prev.desiredZones, prev.desiredZone]
+      }));
+    }
+  };
+
+  const removeDesiredZone = (zoneToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      desiredZones: prev.desiredZones.filter(zone => zone !== zoneToRemove)
+    }));
   };
 
   const getCurrentDistricts = () => {
@@ -374,23 +398,70 @@ const ProfileForm: React.FC = () => {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Desired Zonal Education Division
+            {/* Multiple Preferred Zones Section */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Preferred Zonal Education Divisions
               </label>
-              <select
-                name="desiredZone"
-                required
-                value={formData.desiredZone}
-                onChange={handleChange}
-                disabled={!formData.desiredDistrict}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
-              >
-                <option value="">Select Zone</option>
-                {getDesiredZones().map(zone => (
-                  <option key={zone} value={zone}>{zone}</option>
-                ))}
-              </select>
+              <p className="text-xs text-gray-500 mb-3">
+                Select multiple zones where you would like to be transferred. This increases your chances of finding matches.
+              </p>
+              
+              <div className="flex space-x-2 mb-3">
+                <select
+                  name="desiredZone"
+                  value={formData.desiredZone}
+                  onChange={handleChange}
+                  disabled={!formData.desiredDistrict}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                >
+                  <option value="">Select Zone to Add</option>
+                  {getDesiredZones()
+                    .filter(zone => !formData.desiredZones.includes(zone))
+                    .map(zone => (
+                      <option key={zone} value={zone}>{zone}</option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={addDesiredZone}
+                  disabled={!formData.desiredZone || formData.desiredZones.includes(formData.desiredZone)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add</span>
+                </button>
+              </div>
+
+              {/* Selected Zones */}
+              {formData.desiredZones.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">Selected Zones:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.desiredZones.map((zone, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center space-x-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                      >
+                        <span>{zone}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeDesiredZone(zone)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {formData.desiredZones.length === 0 && (
+                <div className="text-sm text-gray-500 bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                  <strong>Note:</strong> Please add at least one preferred zone to increase your matching opportunities.
+                </div>
+              )}
             </div>
 
             {/* Contact Information Section */}
@@ -433,7 +504,7 @@ const ProfileForm: React.FC = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || formData.desiredZones.length === 0}
             className="w-full flex items-center justify-center space-x-2 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Save className="h-4 w-4" />

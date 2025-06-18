@@ -24,7 +24,7 @@ const TeacherDashboard: React.FC = () => {
     totalTeachers: 0,
     mutualMatches: 0,
     sameSubject: 0,
-    sameZone: 0,
+    preferredZoneMatches: 0,
     loading: true
   });
 
@@ -38,7 +38,7 @@ const TeacherDashboard: React.FC = () => {
     if (!userProfile) return;
 
     try {
-      // Get all completed profiles
+      // Get all completed profiles (excluding admin users)
       const usersRef = collection(db, 'users');
       const completedProfilesQuery = query(
         usersRef,
@@ -50,7 +50,7 @@ const TeacherDashboard: React.FC = () => {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.uid !== userProfile.uid) {
+        if (data.uid !== userProfile.uid && !data.isAdmin) {
           allUsers.push({
             ...data,
             uid: doc.id,
@@ -60,33 +60,35 @@ const TeacherDashboard: React.FC = () => {
       });
 
       // Calculate perfect mutual matches (including zone)
-      const mutualMatches = allUsers.filter(user => 
-        user.currentProvince === userProfile.desiredProvince &&
-        user.currentDistrict === userProfile.desiredDistrict &&
-        user.currentZone === userProfile.desiredZone &&
-        user.desiredProvince === userProfile.currentProvince &&
-        user.desiredDistrict === userProfile.currentDistrict &&
-        user.desiredZone === userProfile.currentZone
-      );
+      const userDesiredZones = userProfile.desiredZones || [userProfile.desiredZone].filter(Boolean);
+      
+      const mutualMatches = allUsers.filter(user => {
+        const userZones = user.desiredZones || [user.desiredZone].filter(Boolean);
+        
+        return user.currentProvince === userProfile.desiredProvince &&
+               user.currentDistrict === userProfile.desiredDistrict &&
+               userZones.includes(userProfile.currentZone) &&
+               user.desiredProvince === userProfile.currentProvince &&
+               user.desiredDistrict === userProfile.currentDistrict &&
+               userDesiredZones.includes(user.currentZone);
+      });
 
       // Calculate same subject teachers
       const sameSubject = allUsers.filter(user => 
         user.subject === userProfile.subject
       );
 
-      // Calculate teachers in same zone (current or desired)
-      const sameZone = allUsers.filter(user => 
-        user.currentZone === userProfile.currentZone ||
-        user.currentZone === userProfile.desiredZone ||
-        user.desiredZone === userProfile.currentZone ||
-        user.desiredZone === userProfile.desiredZone
-      );
+      // Calculate teachers with matching preferred zones
+      const preferredZoneMatches = allUsers.filter(user => {
+        const userZones = user.desiredZones || [user.desiredZone].filter(Boolean);
+        return userDesiredZones.some(zone => userZones.includes(zone));
+      });
 
       setStats({
         totalTeachers: allUsers.length + 1, // +1 for current user
         mutualMatches: mutualMatches.length,
         sameSubject: sameSubject.length,
-        sameZone: sameZone.length,
+        preferredZoneMatches: preferredZoneMatches.length,
         loading: false
       });
     } catch (error) {
@@ -170,11 +172,11 @@ const TeacherDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Same Zone</p>
+              <p className="text-sm font-medium text-gray-600">Preferred Zones</p>
               <p className="text-2xl font-bold text-orange-600">
-                {stats.loading ? '...' : stats.sameZone}
+                {stats.loading ? '...' : stats.preferredZoneMatches}
               </p>
-              <p className="text-xs text-gray-500 mt-1">In your zones</p>
+              <p className="text-xs text-gray-500 mt-1">In your preferred zones</p>
             </div>
             <MapIcon className="h-8 w-8 text-orange-600" />
           </div>
@@ -215,14 +217,30 @@ const TeacherDashboard: React.FC = () => {
           </h3>
           <div className="space-y-4">
             <div className="border-t pt-3">
-              <p className="text-sm text-gray-600 mb-1">Desired Location:</p>
+              <p className="text-sm text-gray-600 mb-1">Preferred Locations:</p>
               <p className="text-sm font-medium text-gray-900">
                 {userProfile.desiredDistrict}, {userProfile.desiredProvince}
               </p>
-              <p className="text-xs text-gray-500 flex items-center space-x-1">
-                <MapIcon className="h-3 w-3" />
-                <span>{userProfile.desiredZone} Zone</span>
-              </p>
+              {userProfile.desiredZones && userProfile.desiredZones.length > 0 ? (
+                <div className="mt-2">
+                  <p className="text-xs text-gray-500 mb-1">Preferred Zones ({userProfile.desiredZones.length}):</p>
+                  <div className="flex flex-wrap gap-1">
+                    {userProfile.desiredZones.map((zone, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
+                      >
+                        {zone}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : userProfile.desiredZone && (
+                <p className="text-xs text-gray-500 flex items-center space-x-1 mt-1">
+                  <MapIcon className="h-3 w-3" />
+                  <span>{userProfile.desiredZone} Zone</span>
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -234,7 +252,7 @@ const TeacherDashboard: React.FC = () => {
           <TrendingUp className="h-5 w-5 text-blue-600" />
           <span>Quick Actions</span>
         </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/matches"
             className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -272,7 +290,6 @@ const TeacherDashboard: React.FC = () => {
         </div>
       </div>
 
-
       {/* Tips Section */}
       {stats.mutualMatches === 0 && !stats.loading && (
         <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
@@ -281,17 +298,20 @@ const TeacherDashboard: React.FC = () => {
             <div>
               <h4 className="font-medium text-yellow-800 mb-2">No Perfect Matches Found</h4>
               <p className="text-sm text-yellow-700 mb-3">
-                Currently, there are no teachers whose current location (including zonal division) exactly matches your desired location and vice versa.
+                Currently, there are no teachers whose current location exactly matches your preferred zones and vice versa.
               </p>
               <div className="bg-yellow-100 rounded-lg p-3 mb-3">
                 <p className="text-sm text-yellow-800">
-                  <strong>Your Profile:</strong><br />
-                  Desired: {userProfile.desiredZone}, {userProfile.desiredDistrict}, {userProfile.desiredProvince}
+                  <strong>Your Preferred Zones:</strong><br />
+                  {userProfile.desiredZones && userProfile.desiredZones.length > 0 
+                    ? userProfile.desiredZones.join(', ')
+                    : userProfile.desiredZone || 'Not specified'
+                  } ({userProfile.desiredDistrict}, {userProfile.desiredProvince})
                 </p>
               </div>
               <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
                 <li>Check back regularly as new teachers join the platform</li>
-                <li>Consider expanding your desired location preferences</li>
+                <li>Consider adding more preferred zones to increase matches</li>
                 <li>Network with teachers in your subject area</li>
                 <li>Share the platform with colleagues who might be interested in transfers</li>
               </ul>

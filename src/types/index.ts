@@ -13,6 +13,7 @@ export interface User {
   desiredProvince: string;
   desiredDistrict: string;
   desiredZone: string;
+  desiredZones?: string[]; // Multiple preferred zones
   gradeTaught: string;
   schoolType: 'National' | 'Provincial';
   whatsappNumber: string;

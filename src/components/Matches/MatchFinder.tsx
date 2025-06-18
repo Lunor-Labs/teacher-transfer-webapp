@@ -44,7 +44,7 @@ const MatchFinder: React.FC = () => {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.uid !== userProfile.uid) {
+        if (data.uid !== userProfile.uid && !data.isAdmin) {
           allUsers.push({
             ...data,
             uid: doc.id,
@@ -53,16 +53,20 @@ const MatchFinder: React.FC = () => {
         }
       });
 
-      // Apply mutual matching logic with zone consideration
+      // Apply mutual matching logic with multiple zones consideration
+      const userDesiredZones = userProfile.desiredZones || [userProfile.desiredZone].filter(Boolean);
+      
       const mutualMatches = allUsers.filter(user => {
+        const userZones = user.desiredZones || [user.desiredZone].filter(Boolean);
+        
         // Check if there's a mutual match possibility
         const isMutualMatch = 
           user.currentProvince === userProfile.desiredProvince &&
           user.currentDistrict === userProfile.desiredDistrict &&
-          user.currentZone === userProfile.desiredZone &&
+          userZones.includes(userProfile.currentZone) &&
           user.desiredProvince === userProfile.currentProvince &&
           user.desiredDistrict === userProfile.currentDistrict &&
-          user.desiredZone === userProfile.currentZone;
+          userDesiredZones.includes(user.currentZone);
 
         // Apply additional filters
         const subjectMatch = !filters.subject || user.subject === filters.subject;
@@ -74,7 +78,7 @@ const MatchFinder: React.FC = () => {
           user.desiredDistrict === filters.district;
         const zoneMatch = !filters.zone || 
           user.currentZone === filters.zone || 
-          user.desiredZone === filters.zone;
+          userZones.includes(filters.zone);
 
         return isMutualMatch && subjectMatch && provinceMatch && districtMatch && zoneMatch;
       });
@@ -159,7 +163,7 @@ const MatchFinder: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-blue-600" />
               <span className="text-sm text-blue-800">
-                <strong>Perfect Mutual Matches:</strong> Teachers whose current location (including zone) matches your desired location and vice versa
+                <strong>Perfect Mutual Matches:</strong> Teachers whose current location matches your preferred zones and vice versa
               </span>
             </div>
           </div>
@@ -264,7 +268,7 @@ const MatchFinder: React.FC = () => {
               No Perfect Mutual Matches Found
             </h3>
             <p className="text-gray-600 mb-4">
-              No teachers found whose current location (province, district, and zone) exactly matches your desired location and vice versa.
+              No teachers found whose current location matches your preferred zones and vice versa.
             </p>
             <p className="text-sm text-gray-500 mt-4">
               Try adjusting your filters or check back later for new matches.

@@ -23,10 +23,14 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher }) => {
   const { t } = useLanguage();
 
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent(`Hello, I found your transfer profile on Teacher Transfer Match. I would like to discuss a mutual transfer opportunity.`);
+    const message = encodeURIComponent(`Hello, I found your transfer profile on Guru Mithuru. I would like to discuss a mutual transfer opportunity.`);
     const phoneNumber = teacher.whatsappNumber.replace(/\D/g, '');
     const url = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(url, '_blank');
+  };
+
+  const getDesiredZones = () => {
+    return teacher.desiredZones || [teacher.desiredZone].filter(Boolean);
   };
 
   return (
@@ -83,16 +87,41 @@ const TeacherCard: React.FC<TeacherCardProps> = ({ teacher }) => {
 
         <div className="border-t pt-3">
           <div className="text-sm text-gray-600 mb-2">
-            <strong>Desired Location:</strong>
+            <strong>Preferred Locations:</strong>
           </div>
           <div className="space-y-1">
             <div className="flex items-center space-x-2 text-sm text-gray-700">
               <MapPin className="h-4 w-4 text-green-600" />
               <span>{teacher.desiredDistrict}, {teacher.desiredProvince}</span>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600 ml-6">
-              <MapIcon className="h-3 w-3" />
-              <span>{teacher.desiredZone} Zone</span>
+            <div className="ml-6">
+              {getDesiredZones().length > 0 ? (
+                <div className="space-y-1">
+                  <div className="text-xs text-gray-500">
+                    Preferred Zones ({getDesiredZones().length}):
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {getDesiredZones().slice(0, 3).map((zone, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"
+                      >
+                        {zone}
+                      </span>
+                    ))}
+                    {getDesiredZones().length > 3 && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                        +{getDesiredZones().length - 3} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <MapIcon className="h-3 w-3" />
+                  <span>Zone not specified</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
