@@ -27,7 +27,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 };
 
 const AppContent: React.FC = () => {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, userProfile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -49,37 +49,63 @@ const AppContent: React.FC = () => {
     );
   }
 
+  // Admin users get redirected to admin dashboard by default
+  const getDefaultRoute = () => {
+    if (userProfile?.isAdmin) {
+      return "/admin";
+    }
+    return "/dashboard";
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       <main className="flex-1">
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/login" element={<Navigate to="/dashboard" />} />
+          <Route path="/" element={<Navigate to={getDefaultRoute()} />} />
+          <Route path="/login" element={<Navigate to={getDefaultRoute()} />} />
+          
+          {/* Admin Routes */}
           <Route 
-            path="/dashboard" 
+            path="/admin" 
             element={
               <PrivateRoute>
-                <TeacherDashboard />
+                <AdminDashboard />
               </PrivateRoute>
             } 
           />
-          <Route 
-            path="/profile" 
-            element={
-              <PrivateRoute>
-                <ProfileForm />
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/matches" 
-            element={
-              <PrivateRoute>
-                <MatchFinder />
-              </PrivateRoute>
-            } 
-          />
+          
+          {/* Teacher Routes - Only accessible to non-admin users */}
+          {!userProfile?.isAdmin && (
+            <>
+              <Route 
+                path="/dashboard" 
+                element={
+                  <PrivateRoute>
+                    <TeacherDashboard />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <PrivateRoute>
+                    <ProfileForm />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/matches" 
+                element={
+                  <PrivateRoute>
+                    <MatchFinder />
+                  </PrivateRoute>
+                } 
+              />
+            </>
+          )}
+          
+          {/* Shared Routes */}
           <Route 
             path="/testimonials" 
             element={
@@ -96,14 +122,9 @@ const AppContent: React.FC = () => {
               </PrivateRoute>
             } 
           />
-          <Route 
-            path="/admin" 
-            element={
-              <PrivateRoute>
-                <AdminDashboard />
-              </PrivateRoute>
-            } 
-          />
+          
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to={getDefaultRoute()} />} />
         </Routes>
       </main>
       <Footer />

@@ -20,45 +20,68 @@ const Header: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const navigationItems = [
-    {
-      path: '/dashboard',
-      icon: BarChart3,
-      label: 'Dashboard',
-      color: 'text-blue-600'
-    },
-    {
-      path: '/matches',
-      icon: Search,
-      label: t('findMatches'),
-      color: 'text-green-600'
-    },
-    {
-      path: '/profile',
-      icon: UserPlus,
-      label: 'Profile',
-      color: 'text-purple-600'
-    },
-    {
-      path: '/testimonials',
-      icon: MessageSquare,
-      label: 'Testimonials',
-      color: 'text-orange-600'
+  // Different navigation items for admin vs regular users
+  const getNavigationItems = () => {
+    if (userProfile?.isAdmin) {
+      return [
+        {
+          path: '/admin',
+          icon: Settings,
+          label: t('adminDashboard'),
+          color: 'text-red-600'
+        },
+        {
+          path: '/testimonials',
+          icon: MessageSquare,
+          label: 'Testimonials',
+          color: 'text-orange-600'
+        }
+      ];
     }
-  ];
 
-  // Add admin item if user is admin
-  if (userProfile?.isAdmin) {
-    navigationItems.push({
-      path: '/admin',
-      icon: Settings,
-      label: t('adminDashboard'),
-      color: 'text-red-600'
-    });
-  }
+    return [
+      {
+        path: '/dashboard',
+        icon: BarChart3,
+        label: 'Dashboard',
+        color: 'text-blue-600'
+      },
+      {
+        path: '/matches',
+        icon: Search,
+        label: t('findMatches'),
+        color: 'text-green-600'
+      },
+      {
+        path: '/profile',
+        icon: UserPlus,
+        label: 'Profile',
+        color: 'text-purple-600'
+      },
+      {
+        path: '/testimonials',
+        icon: MessageSquare,
+        label: 'Testimonials',
+        color: 'text-orange-600'
+      }
+    ];
+  };
+
+  const navigationItems = getNavigationItems();
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  const getUserRole = () => {
+    return userProfile?.isAdmin ? 'Admin' : 'Teacher';
+  };
+
+  const getUserSubtitle = () => {
+    if (userProfile?.isAdmin) {
+      return 'System Administrator';
+    }
+    return userProfile?.currentSchool ? `${userProfile.currentSchool}` : 'Teacher';
   };
 
   return (
@@ -116,11 +139,18 @@ const Header: React.FC = () => {
             {/* User Info & Logout - Desktop */}
             <div className="hidden md:flex items-center space-x-3">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">
-                  {userProfile?.fullName || userProfile?.email}
-                </p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm font-medium text-gray-900">
+                    {userProfile?.fullName || userProfile?.email}
+                  </p>
+                  {userProfile?.isAdmin && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      Admin
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500">
-                  {userProfile?.currentSchool ? `${userProfile.currentSchool}` : 'Teacher'}
+                  {getUserSubtitle()}
                 </p>
               </div>
               <button
@@ -199,17 +229,26 @@ const Header: React.FC = () => {
             {/* User Info - Mobile */}
             <div className="px-4 py-3 bg-gray-50 rounded-lg mx-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  userProfile?.isAdmin ? 'bg-red-600' : 'bg-blue-600'
+                }`}>
                   <span className="text-white font-semibold text-sm">
                     {userProfile?.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    {userProfile?.fullName || userProfile?.email}
-                  </p>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-sm font-medium text-gray-900">
+                      {userProfile?.fullName || userProfile?.email}
+                    </p>
+                    {userProfile?.isAdmin && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        Admin
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500">
-                    {userProfile?.currentSchool || 'Teacher'}
+                    {getUserSubtitle()}
                   </p>
                 </div>
               </div>
