@@ -20,7 +20,7 @@ const translations: Translations = {
     register: 'Register',
     email: 'Email',
     password: 'Password',
-    fullName: 'Name',
+    fullName: 'Full Name',
     subject: 'Subject',
     currentProvince: 'Current Province',
     currentDistrict: 'Current District',
@@ -47,7 +47,7 @@ const translations: Translations = {
     register: 'ලියාපදිංචි වන්න',
     email: 'විද්‍යුත් තැපැල්',
     password: 'මුරපදය',
-    fullName: 'නම',
+    fullName: 'සම්පූර්ණ නම',
     subject: 'විෂය',
     currentProvince: 'වත්මන් පළාත',
     currentDistrict: 'වත්මන් දිස්ත්‍රික්කය',
@@ -69,12 +69,12 @@ const translations: Translations = {
     mutualMatch: 'අන්‍යෝන්‍ය ගැලපීම් ඇත'
   },
   ta: {
-    appName: 'ஆசிரியர் இடமாற்ற பொருத்தம்',
+    appName: 'குரு மித்ரு',
     login: 'உள்நுழைய',
     register: 'பதிவு செய்க',
     email: 'மின்னஞ்சல்',
     password: 'கடவுச்சொல்',
-    fullName: 'பெயர்',
+    fullName: 'முழு பெயர்',
     subject: 'பாடம்',
     currentProvince: 'தற்போதைய மாகாணம்',
     currentDistrict: 'தற்போதைய மாவட்டம்',
@@ -115,7 +115,7 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0]);
+  const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0]); // Default to English
 
   const t = (key: string): string => {
     return translations[currentLanguage.code][key] || key;

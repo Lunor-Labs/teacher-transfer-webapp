@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { LogOut, Users, UserPlus, Search, Settings, MessageSquare, BarChart3, Menu, X } from 'lucide-react';
+import { LogOut, Users, UserPlus, Search, Settings, MessageSquare, BarChart3, Menu, X, Globe } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Header: React.FC = () => {
@@ -92,7 +92,9 @@ const Header: React.FC = () => {
             <Link to="/" className="flex items-center space-x-2">
               <Users className="h-8 w-8 text-blue-600" />
               <span className="text-xl font-bold text-gray-900 hidden sm:block">{t('appName')}</span>
-              <span className="text-lg font-bold text-gray-900 sm:hidden">Guru Mithuru</span>
+              <span className="text-lg font-bold text-gray-900 sm:hidden">
+                {t('appName')}
+              </span>
             </Link>
           </div>
 
@@ -120,20 +122,23 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-3">
             {/* Language Selector */}
             <div className="relative hidden sm:block">
-              <select
-                value={currentLanguage.code}
-                onChange={(e) => {
-                  const lang = languages.find(l => l.code === e.target.value);
-                  if (lang) setLanguage(lang);
-                }}
-                className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {languages.map(lang => (
-                  <option key={lang.code} value={lang.code}>
-                    {lang.flag} {lang.name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center space-x-1">
+                <Globe className="h-4 w-4 text-gray-600" />
+                <select
+                  value={currentLanguage.code}
+                  onChange={(e) => {
+                    const lang = languages.find(l => l.code === e.target.value);
+                    if (lang) setLanguage(lang);
+                  }}
+                  className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {languages.map(lang => (
+                    <option key={lang.code} value={lang.code}>
+                      {lang.flag} {lang.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* User Info & Logout - Desktop */}
@@ -209,7 +214,10 @@ const Header: React.FC = () => {
 
             {/* Language Selector - Mobile */}
             <div className="px-4 py-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-1">
+                <Globe className="h-4 w-4" />
+                <span>Language</span>
+              </label>
               <select
                 value={currentLanguage.code}
                 onChange={(e) => {
