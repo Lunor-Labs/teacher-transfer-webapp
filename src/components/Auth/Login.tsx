@@ -350,8 +350,8 @@ const Login: React.FC = () => {
             
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               {currentLanguage.code === 'si' ? (
-                <>Guru Mithuru යනු ශ්‍රී ලංකාවේ ගුරු මාරු සඳහා නිදහස් සහ පහසු විසඳුමක් වන වේදිකාවකි. 
-                ඔබගේ පාසල සහ අවශ්‍ය දිස්ත්‍රික්කය ඇතුළත් කර ගැලපෙන ගුරුවරුන් සෙවිය හැකිය.</>
+                <>Guru Mithuru යනු ශ්‍රී ලංකාවේ සුහඳ ගුරු මාරු සඳහා පහසු විසඳුමක් වන වේදිකාවකි. 
+                ඔබගේ පාසල සහ අවශ්‍ය දිස්ත්‍රික්කය, කලාපය ඇතුළත් කර ගැලපෙන ගුරුවරුන් සෙවිය හැකිය.</>
               ) : currentLanguage.code === 'ta' ? (
                 <>பரஸ்பர இடமாற்ற வாய்ப்புகளுக்காக இலங்கை பள்ளி ஆசிரியர்களுடன் இணைக்கவும். 
                 இடம், பாடம் மற்றும் விருப்பத்தேர்வுகளின் அடிப்படையில் உங்கள் சரியான இடமாற்ற பங்குதாரரைக் கண்டறியுங்கள்.</>
@@ -368,12 +368,12 @@ const Login: React.FC = () => {
                   <MapPin className="h-6 w-6 text-green-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">
-                  {currentLanguage.code === 'si' ? 'අනුමත ගුරු මාරු සෙවීම පහසුයි' : 
+                  {currentLanguage.code === 'si' ? 'සුහඳ ගුරු මාරුවක් සොයා ගැනීම පහසුය' : 
                    currentLanguage.code === 'ta' ? 'எளிதான இடமாற்ற பொருத்தம்' : 
                    'Easy Transfer Matching'}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  {currentLanguage.code === 'si' ? 'ඔබගේ අවශ්‍යතාවන්ට ගැලපෙන ගුරුවරුන් සොයා ගන්න' : 
+                  {currentLanguage.code === 'si' ? 'ඔබ කැමති කලාපයට ගුරු මාරුවක් සොයා ගන්න.' : 
                    currentLanguage.code === 'ta' ? 'நிரப்பு இடம் விருப்பத்தேர்வுகளுடன் ஆசிரியர்களைக் கண்டறியுங்கள்' :
                    'Find teachers with complementary location preferences'}
                 </p>
@@ -513,9 +513,9 @@ const Login: React.FC = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      {currentLanguage.code === 'si' ? 'අනුපිටපත් වැළැක්වීම සඳහා. අනෙක් පරිශීලකයින්ට නොපෙනේ.' : 
-                       currentLanguage.code === 'ta' ? 'நகல் தடுப்புக்காக பயன்படுத்தப்படுகிறது. மற்ற பயனர்களுக்கு தெரியாது.' :
-                       'Used for duplicate prevention. Not visible to other users.'}
+                      {currentLanguage.code === 'si' ? 'අනෙක් පරිශීලකයින්ට නොපෙනේ.' : 
+                       currentLanguage.code === 'ta' ? 'மற்ற பயனர்களுக்கு தெரியாது.' :
+                       'Not visible to other users.'}
                     </p>
                   </div>
 
@@ -622,7 +622,7 @@ const Login: React.FC = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        {currentLanguage.code === 'si' ? 'ඉගැන්වන ශ්‍රේණිය' : 
+                        {currentLanguage.code === 'si' ? 'ඉගෙනුම් ශ්‍රේණිය' : 
                          currentLanguage.code === 'ta' ? 'கற்பிக்கும் வகுப்பு' :
                          'Grade Taught'}
                       </label>
@@ -943,7 +943,7 @@ const Login: React.FC = () => {
               <form onSubmit={handleLogin} className="space-y-6">
                 <div className="text-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    {currentLanguage.code === 'si' ? 'ගිණුමට පුරන්න' : 
+                    {currentLanguage.code === 'si' ? 'ගිණුමට ප්‍රවේශ වන්න' : 
                      currentLanguage.code === 'ta' ? 'உங்கள் கணக்கில் உள்நுழையவும்' :
                      'Sign In to Your Account'}
                   </h2>
@@ -1005,10 +1005,10 @@ const Login: React.FC = () => {
                   <LogIn className="h-4 w-4" />
                   <span>
                     {loading ? 
-                      (currentLanguage.code === 'si' ? 'පුරමින්...' : 
+                      (currentLanguage.code === 'si' ? 'ප්‍රවේශ වෙමින්...' : 
                        currentLanguage.code === 'ta' ? 'உள்நுழைகிறது...' :
                        'Signing In...') : 
-                      (currentLanguage.code === 'si' ? 'පුරන්න' : 
+                      (currentLanguage.code === 'si' ? 'ප්‍රවේශ වන්න' : 
                        currentLanguage.code === 'ta' ? 'உள்நுழைய' :
                        'Sign In')
                     }
