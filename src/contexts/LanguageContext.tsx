@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState } from 'react';
 import { Language } from '../types';
 
 const languages: Language[] = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'si', name: 'සිංහල', flag: '🇱🇰' },
-  { code: 'ta', name: 'தமிழ்', flag: '🇱🇰' }
+  { code: 'ta', name: 'தமிழ்', flag: '🇱🇰' },
+  { code: 'en', name: 'English', flag: '🇬🇧' }
 ];
 
 interface Translations {

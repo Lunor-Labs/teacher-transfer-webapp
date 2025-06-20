@@ -23,7 +23,9 @@ import {
   Globe,
   CheckCircle,
   MessageCircle,
-  Gift
+  Gift,
+  GraduationCap,
+  Building
 } from 'lucide-react';
 
 const subjects = [
@@ -32,6 +34,10 @@ const subjects = [
   'Civic Education', 'Health & Physical Education', 'Art', 'Music', 'Dance',
   'Technology', 'Commerce', 'Accounting', 'Economics', 'Biology', 'Physics',
   'Chemistry', 'Combined Mathematics', 'ICT', 'Media Studies'
+];
+
+const grades = [
+  'Primary (1-5)', 'Secondary (6-11)', 'Advanced Level (12-13)'
 ];
 
 const mediumOptions = [
@@ -63,6 +69,8 @@ const Login: React.FC = () => {
     nicNumber: '',
     subject: '',
     mediumOfInstruction: 'Sinhala' as 'Sinhala' | 'Tamil' | 'English',
+    gradeTaught: '',
+    schoolType: 'National' as 'National' | 'Provincial',
     currentProvince: '',
     currentDistrict: '',
     currentZone: '',
@@ -123,6 +131,8 @@ const Login: React.FC = () => {
         nicNumber: registerData.nicNumber,
         subject: registerData.subject,
         mediumOfInstruction: registerData.mediumOfInstruction,
+        gradeTaught: registerData.gradeTaught,
+        schoolType: registerData.schoolType,
         currentProvince: registerData.currentProvince,
         currentDistrict: registerData.currentDistrict,
         currentZone: registerData.currentZone,
@@ -130,9 +140,7 @@ const Login: React.FC = () => {
         desiredProvince: registerData.desiredProvince,
         desiredDistrict: registerData.desiredDistrict,
         desiredZones: registerData.desiredZones,
-        // Set some defaults for required fields
-        gradeTaught: 'Primary (1-5)', // Default value
-        schoolType: 'National', // Default value
+        // Set defaults for fields that will be updated in profile
         whatsappNumber: '', // Will be updated in profile
         hideContact: false,
         createdAt: new Date(),
@@ -610,6 +618,62 @@ const Login: React.FC = () => {
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {currentLanguage.code === 'si' ? 'ඉගැන්වන ශ්‍රේණිය' : 
+                         currentLanguage.code === 'ta' ? 'கற்பிக்கும் வகுப்பு' :
+                         'Grade Taught'}
+                      </label>
+                      <div className="relative">
+                        <select
+                          name="gradeTaught"
+                          required
+                          value={registerData.gradeTaught}
+                          onChange={handleRegisterChange}
+                          className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        >
+                          <option value="">
+                            {currentLanguage.code === 'si' ? 'ශ්‍රේණිය තෝරන්න' : 
+                             currentLanguage.code === 'ta' ? 'வகுப்பைத் தேர்ந்தெடுக்கவும்' :
+                             'Select Grade'}
+                          </option>
+                          {grades.map(grade => (
+                            <option key={grade} value={grade}>{grade}</option>
+                          ))}
+                        </select>
+                        <GraduationCap className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {currentLanguage.code === 'si' ? 'පාසල් වර්ගය' : 
+                         currentLanguage.code === 'ta' ? 'பள்ளி வகை' :
+                         'School Type'}
+                      </label>
+                      <div className="relative">
+                        <select
+                          name="schoolType"
+                          required
+                          value={registerData.schoolType}
+                          onChange={handleRegisterChange}
+                          className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        >
+                          <option value="National">
+                            {currentLanguage.code === 'si' ? 'ජාතික පාසල' : 
+                             currentLanguage.code === 'ta' ? 'தேசிய பள்ளி' :
+                             'National School'}
+                          </option>
+                          <option value="Provincial">
+                            {currentLanguage.code === 'si' ? 'පළාත් පාසල' : 
+                             currentLanguage.code === 'ta' ? 'மாகாண பள்ளி' :
+                             'Provincial School'}
+                          </option>
+                        </select>
+                        <Building className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                      </div>
                     </div>
                   </div>
                 </div>
